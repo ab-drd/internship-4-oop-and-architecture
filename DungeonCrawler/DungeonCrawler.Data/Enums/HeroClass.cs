@@ -6,8 +6,8 @@ namespace DungeonCrawler.Data.Enums
 {
     public enum HeroClass
     {
-        Warrior,
-        Mage,
-        Ranger
+        Warrior = 1,
+        Mage    = 2,
+        Ranger  = 3
     }
 }

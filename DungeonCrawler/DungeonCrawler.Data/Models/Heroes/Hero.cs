@@ -9,6 +9,14 @@ namespace DungeonCrawler.Data.Models.Heroes
     public class Hero : IHasHealth
     {
         public Hero() { }
+        public Hero(string heroName)
+        {
+            HeroName = heroName;
+
+
+            Level = 1;
+            Experience = 0;
+        }
 
         public string HeroName { get; set; }
 
@@ -29,7 +37,7 @@ namespace DungeonCrawler.Data.Models.Heroes
             return $"\tName\t\t\t {HeroName}\n" +
                 $"\tClass\t\t\t {HeroClass}\n\n" +
                 $"\tLevel\t\t\t {Level}\n" +
-                $"\tExperience\t\t {Experience}\n\n" +
+                $"\tExperience\t\t {Experience}/{DataStore.ExperienceLevels[Level]}\n\n" +
                 $"\tHealth\t\t\t {CurrentHealth}/{Health}\n" +
                 $"\tDamage\t\t\t {Damage}\n\n";
         }

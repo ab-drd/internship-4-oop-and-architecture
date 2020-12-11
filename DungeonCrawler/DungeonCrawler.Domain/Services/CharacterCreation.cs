@@ -1,4 +1,6 @@
-﻿using DungeonCrawler.Data.Models.Heroes;
+﻿using DungeonCrawler.Data;
+using DungeonCrawler.Data.Enums;
+using DungeonCrawler.Data.Models.Heroes;
 using DungeonCrawler.Domain.Helpers;
 using System;
 using System.Collections.Generic;
@@ -9,199 +11,245 @@ namespace DungeonCrawler.Domain.Services
     {
         public static Hero CreateCharacter()
         {
-            var heroList = new List<Hero>
-            {
-                new Warrior(),
-                new Mage(),
-                new Ranger()
-            };
+            var newHero = new Hero();
 
-            var heroClass = 0;
+            var isDoneWithCharacterCreation = false;
 
-            var stopParameter = false;
-            while(!stopParameter)
+            while(!isDoneWithCharacterCreation)
             {
                 Console.Clear();
 
-                ColorPrints.ColorRed("\n >>>>>>>>>> CHARACTER CREATION <<<<<<<<<<\n");
-
-                Console.WriteLine("\n Insert hero's name: \n");
-                var heroName = Console.ReadLine();
+                var heroName = ChooseHeroName();
 
                 Console.Clear();
+                
+                newHero = ChooseClass(heroName);
 
-                var stopCondition = false;
-                while (!stopCondition)
-                {
-                    ColorPrints.ColorRed("\n >>>>>>>>>> CHARACTER CREATION <<<<<<<<<<\n");
-
-                    Console.WriteLine($" Name\t\t {heroName}");
-
-                    Console.WriteLine("\n Choose your hero's class. Your choices are:\n" +
-                    " 1\t Warrior\n" +
-                    " 2\t Mage\n" +
-                    " 3\t Ranger\n");
-
-                    heroClass = IntegerInput.IntInputAndCheck(1, 3);
-
-                    Console.WriteLine("\n Are you sure that's the class you want?\n" +
-                        " 1\t Yes!\n" +
-                        " 2\t On second thought... Let me choose again.\n");
-
-                    var confirmClassChoice = IntegerInput.IntInputAndCheck(1, 2);
-
-                    switch (confirmClassChoice)
-                    {
-                        case 1:
-                            stopCondition = true;
-                            break;
-                        case 2:
-                            break;
-                    }
-
-                    Console.Clear();
-                }
-
-                ColorPrints.ColorRed("\n >>>>>>>>>> CHARACTER CREATION <<<<<<<<<<\n");
-
-                Console.WriteLine($" Name\t\t {heroName}");
-
-                switch (heroClass)
-                {
-                    case 1:
-                        Console.WriteLine(" Class\t\t Warrior\n\n" +
-                            " The Warrior's base stats are:\n\n" +
-                            "\t Health\t\t 100\n" +
-                            "\t Damage\t\t 15\n");
-
-                        heroList[heroClass - 1] = new Warrior
-                        {
-                            Health = 100,
-                            CurrentHealth = 100,
-                            Damage = 15,
-                            Experience = 0,
-                            HeroName = heroName,
-                            Level = 1
-                        };
-
-                        break;
-
-                    case 2:
-
-                        Console.WriteLine(" Class\t\t Mage\n\n" +
-                            " The Mage's base stats are:\n\n" +
-                            "\t Health\t\t 50\n" +
-                            "\t Damage\t\t 30\n" +
-                            "\t Mana\t\t 50\n");
-
-                        heroList[heroClass - 1] = new Mage
-                        {
-                            Health = 50,
-                            CurrentHealth = 50,
-                            Damage = 30,
-                            Mana = 50,
-                            Resurrection = true,
-                            Experience = 0,
-                            HeroName = heroName,
-                            Level = 1
-                        };
-
-                        break;
-
-                    case 3:
-
-                        Console.WriteLine(" Class\t\t Ranger\n\n" +
-                            " The Ranger's base stats are:\n\n" +
-                            "\t Health\t\t 50\n" +
-                            "\t Damage\t\t 30\n" +
-                            "\t Critical Chance\t\t 5%\n" +
-                            "\t Stun Chance\t\t 5%\n");
-
-                        heroList[heroClass - 1] = new Ranger
-                        {
-                            Health = 75,
-                            CurrentHealth = 75,
-                            Damage = 25,
-                            CriticalChance = 5,
-                            StunChance = 5,
-                            Experience = 0,
-                            HeroName = heroName,
-                            Level = 1
-                        };
-
-                        break;
-                }
-
-                Console.WriteLine(" Because you're super special, you get to allocate an additional 10 points however you'd like.\n" +
-                            " The number you input next will be added to your Health stat.\n" +
-                            " The remainder of the points (so 10 - what you input) " +
-                            "will be added to your Damage.");
-
-                Console.WriteLine(" Would you like to choose your extra stats yourself or have them randomly generated?\n\n" +
-                    " 1\t Let me choose\n" +
-                    " 2\t Generate for me\n" +
-                    " 3\t I don't need extra stats!\n");
-
-                var statInputChoice = IntegerInput.IntInputAndCheck(1, 3);
-
-                var extraPoints = 0;
-
-                switch (statInputChoice)
-                {
-                    case 1:
-                        Console.WriteLine("\n Choose wisely!\n\n" +
-                    " How many extra points are you adding to Health? (you can also choose 0)\n");
-
-                        extraPoints = IntegerInput.IntInputAndCheck(0, 10);
-                        break;
-
-                    case 2:
-                        var r = new Random();
-                        extraPoints = r.Next(0, 10);
-
-                        break;
-
-                    case 3:
-                        break;
-                }
-
-                heroList[heroClass - 1].Health += extraPoints;
-                heroList[heroClass - 1].CurrentHealth += extraPoints;
-                heroList[heroClass - 1].Damage += 10 - extraPoints;
+                ChooseExtraStats(newHero);
 
                 Console.Clear();
 
                 ColorPrints.ColorRed("\n >>>>>>>>>> CHARACTER CREATION <<<<<<<<<<\n");
 
-                Console.WriteLine(" This is your hero:\n");
+                Console.WriteLine(" This is your final hero:\n");
 
-                Console.WriteLine(heroList[heroClass - 1]);
+                Console.WriteLine(newHero);
 
                 Console.WriteLine("\n Are you ready for the fight of your life?\n" +
-                    " 1\t Let's do this!\n" +
-                    " 2\t I don't like this character, make another one!\n" +
-                    " 0\t I don't want to play this game.\n");
+                                    " 1\t Let's do this!\n" +
+                                    " 2\t I don't like this character, make a new one!\n" +
+                                    " 0\t I don't want to play this game.\n");
 
-                var likeCharacterChoice = IntegerInput.IntInputAndCheck(0, 2);
+                var likeCharacterChoice = Input.IntInputAndCheck(0, 2);
 
                 switch (likeCharacterChoice)
                 {
                     case 1:
-                        stopParameter = true;
+
+                        isDoneWithCharacterCreation = true;
                         break;
 
                     case 2:
+
+                        Console.Clear();
+
+                        Console.WriteLine("\n You will be returned to the Character Creation screen.\n" +
+                            " Press any key to continue\n");
+                        Console.ReadKey();
+
+                        Console.Clear();
                         break;
 
                     case 0:
-                        stopParameter = true;
-                        heroList[heroClass - 1] = null;
+
+                        isDoneWithCharacterCreation = true;
+                        newHero = null;
+
+                        Console.Clear();
+
+                        Console.WriteLine("\n Sorry to see you leave. :(\n" +
+                                            " Grab a cup of coffee and come again.\n" +
+                                            " I'll be waiting here...\n");
+                        Console.ReadKey();
+
+                        Console.Clear();
+
+                        Console.WriteLine("\n\n\n\tForever.\n");
+                        Console.ReadKey();
+
+                        Console.Clear();
+
                         break;
                 }
             }
 
-            return heroList[heroClass - 1];
+            return newHero;
         }
 
+        public static Hero ChooseClass(string heroName)
+        {
+            var heroClass = new HeroClass();
+
+            var isHeroHappyWithClass = false;
+
+            do
+            {
+                ColorPrints.ColorRed("\n >>>>>>>>>> CHARACTER CREATION <<<<<<<<<<\n");
+
+                Console.WriteLine($" Name\t\t {heroName}");
+
+                Console.WriteLine("\n Choose your hero's class. Your choices are:\n" +
+                                " 1\t Warrior\n" +
+                                " 2\t Mage\n" +
+                                " 3\t Ranger\n");
+
+                var heroClassChoice = Input.IntInputAndCheck(1, 3);
+
+                Console.WriteLine("\n Are you sure that's the class you want?\n" +
+                                    " 1\t Yes!\n" +
+                                    " 2\t On second thought... Let me choose again.\n");
+
+                var confirmClassChoice = Input.IntInputAndCheck(1, 2);
+
+                switch (confirmClassChoice)
+                {
+                    case 1:
+                        heroClass = (HeroClass) heroClassChoice;
+                        isHeroHappyWithClass = true;
+                        break;
+
+                    case 2:
+                        break;
+                }
+
+                Console.Clear();
+
+            } while (!isHeroHappyWithClass);
+
+            var newHero = new Hero();
+
+            switch (heroClass)
+            {
+                case HeroClass.Warrior:
+
+                    newHero = new Warrior(heroName)
+                    {
+                        HeroClass = HeroClass.Warrior
+                    };
+
+                    break;
+
+                case HeroClass.Mage:
+
+                    newHero = new Mage(heroName)
+                    {
+                        HeroClass = HeroClass.Mage
+                    };
+
+                    break;
+
+                case HeroClass.Ranger:
+
+                    newHero = new Ranger(heroName)
+                    {
+                        HeroClass = HeroClass.Ranger
+                    };
+
+                    break;
+            }
+
+            return newHero;
+        }
+
+
+
+        public static string ChooseHeroName()
+        {
+            var heroName = "";
+            var isHappyWithName = false;
+
+            do
+            {
+                ColorPrints.ColorRed("\n >>>>>>>>>> CHARACTER CREATION <<<<<<<<<<\n");
+
+                Console.WriteLine("\n Insert the hero's name: \n");
+
+                heroName = Console.ReadLine();
+
+                Console.WriteLine($"\n Are you sure you want to name your hero {heroName} ?\n" +
+                    $" 1\t Yeah!\n" +
+                    $" 2\t No, let me choose again.\n");
+
+                var changeNameChoice = Input.IntInputAndCheck(1, 2);
+
+                switch(changeNameChoice)
+                {
+                    case 1:
+                        isHappyWithName = true;
+                        break;
+
+                    case 2:
+                        Console.Clear();
+                        break;
+
+                }
+
+            } while (!isHappyWithName);
+
+            return heroName;
+        }
+
+
+
+        public static void ChooseExtraStats(Hero hero)
+        {
+            ColorPrints.ColorRed("\n >>>>>>>>>> CHARACTER CREATION <<<<<<<<<<\n");
+
+            Console.WriteLine(" Your hero's current stats:\n");
+            Console.WriteLine(hero);
+
+            Console.WriteLine("\n Because you're super special, you get to allocate\n" +
+                                " an additional 15 points to Health or 5 points to Damage.\n");
+
+            Console.WriteLine(" Would you like to make this choice yourself, or have it randomly assigned?\n\n" +
+                                " 1\t I'm responsible enough (let me choose)\n" +
+                                " 2\t Help me please (choose for me)\n" +
+                                " 3\t I'm not special, let me out! (you get nothing)\n");
+
+            var statInputChoice = Input.IntInputAndCheck(1, 3);
+
+            var extraStatsChoice = 0;
+
+            switch (statInputChoice)
+            {
+                case 1:
+                    Console.WriteLine("\n Choose wisely!\n\n" +
+                                        " 1\t Add 15 points to Health\n" +
+                                        " 2\t Add 5 points to Damage\n");
+
+                    extraStatsChoice = Input.IntInputAndCheck(1, 2);
+
+                    break;
+
+                case 2:
+                    extraStatsChoice = StaticRandom.GetRandom(1, 2);
+                    break;
+
+                case 3:
+                    break;
+            }
+
+            switch(extraStatsChoice)
+            {
+                case 1:
+                    hero.Health += 15;
+                    hero.CurrentHealth += 15;
+                    break;
+                case 2:
+                    hero.Damage += 5;
+                    break;
+            }
+
+        }
     }
 }

@@ -10,44 +10,25 @@ namespace DungeonCrawler.Domain.Services
 {
     public static class BattleSimulator
     {
-        public static bool BattleSimulation(Hero instanceHero)
+        public static bool GeneralBattleSimulation(Hero instanceHero)
         {
-            if(instanceHero is Warrior warrior)
-            {
-                BattleSimulatorWarrior(warrior);
-            }
+            var returnBool = false;
 
-            else if(instanceHero is Mage mage)
-            {
-                BattleSimulatorMage(mage);
-            }
-
-            else if(instanceHero is Ranger ranger)
-            {
-                BattleSimulatorRanger(ranger);
-            }
-
-            return false;
-        }
-
-        
-
-        public static bool BattleSimulatorWarrior(Warrior warrior)
-        {
-            var localDamage = warrior.Damage;
-
-            var numberOfEnemies = 10;
+            var localDamage = instanceHero.Damage;
 
             var r = new Random();
 
-            for (var i = 0; i < numberOfEnemies; i++)
-            {
-                var round = 1;
-                while (warrior.CurrentHealth > 0 && DataStore.AllMonsters[i].CurrentHealth > 0)
-                {
-                    ColorPrints.ColorYellow($"\n   >>> ENEMY {i + 1} / {numberOfEnemies} || ROUND {round++} <<<\n");
+            var monstersDefeated = 0;
 
-                    StatPrint(warrior, i);
+            for (var i = 0; i < DataStore.AllMonsters.Count; i++)
+            {
+                var roundNumber = 1;
+
+                while (instanceHero.CurrentHealth > 0 && DataStore.AllMonsters[i].CurrentHealth > 0)
+                {
+                    ColorPrints.ColorYellow($"\n   >>> ENEMY {i + 1} / {DataStore.AllMonsters.Count} || ROUND {roundNumber++} <<<\n");
+
+                    StatPrint(instanceHero, i);
 
                     var heroChoice = ActionChoice.ActionChoices(true);
 
@@ -57,77 +38,74 @@ namespace DungeonCrawler.Domain.Services
 
                     if (ActionChoice.RoundOutcome(heroChoice, monsterChoice) == 1)
                     {
-                        Console.WriteLine($" {warrior.HeroName} and the monster dodged eachother's attacks!");
+                        Console.WriteLine($" {instanceHero.HeroName} and the monster dodged eachother's attacks!\n");
                     }
 
                     else if (ActionChoice.RoundOutcome(heroChoice, monsterChoice) == 2)
                     {
                         Console.WriteLine(" The hero prevailed!");
 
-                        if (i == 0)
+                        if (instanceHero is Warrior warrior)
                         {
-                            Console.WriteLine("\n You're a warrior, a force of fury and blood!");
+                            localDamage *= ActionChoice.WarriorRavage(warrior);
                         }
 
-                        Console.WriteLine(" Would you like to sacrifice 15% of your max HP to double your damage this round?\n" +
-                                " 1\t Yes\n" +
-                                " 2\t No\n");
-
-                        var warriorChoice = IntegerInput.IntInputAndCheck(1, 2);
-                        switch (warriorChoice)
+                        if (instanceHero is Mage mage)
                         {
-                            case 1:
-                                if (warrior.CurrentHealth <= warrior.Health * 3 / 20)
-                                {
-                                    Console.WriteLine(" You can't off yourself like that!\n" +
-                                        " (activating Ravage would kill you, so you've been stopped)");
-                                }
-                                else
-                                {
-                                    localDamage = localDamage * 2;
-                                    warrior.CurrentHealth -= warrior.Health * 3 / 20;
-                                    Console.WriteLine($" Your stats are now:\n" +
-                                        $" Health\t\t {warrior.CurrentHealth}\n" +
-                                        $" Damage\t\t {localDamage}");
-                                }
-
-                                break;
-
-                            case 2:
-                                Console.WriteLine(" You chose not to sacrifice your HP for a temporary boost.\n");
-                                break;
+                            localDamage = ActionChoice.MageAttackChoice(mage);
                         }
 
-                        var healthDrop = r.Next(localDamage - 2, localDamage + 2);
-                        DataStore.AllMonsters[i].CurrentHealth -= healthDrop;
+                        if (instanceHero is Ranger ranger)
+                        {
 
-                        Console.WriteLine($" The Monster's HP has been reduced by {healthDrop}!\n");
+                        }
+                        
+                        DataStore.AllMonsters[i].CurrentHealth -= localDamage;
 
-                        localDamage = warrior.Damage;
+                        Console.WriteLine($" The Monster's HP has been reduced by {localDamage}!\n");
 
+                        localDamage = instanceHero.Damage;
                     }
 
                     else
                     {
-                        var healthDrop = RandomEnemy.EnemyAction(warrior, DataStore.AllMonsters[i]);
-                        warrior.CurrentHealth = warrior.CurrentHealth - healthDrop;
+                        var healthDrop = RandomEnemy.MonsterAction(instanceHero, DataStore.AllMonsters[i]);
+                        instanceHero.CurrentHealth = instanceHero.CurrentHealth - healthDrop;
                     }
 
                     Console.WriteLine(" Press any key to continue");
                     Console.ReadKey();
 
                     Console.Clear();
-
                 }
 
-                if (warrior.CurrentHealth < 1)
+                if ((instanceHero is Mage mageInstance) && mageInstance.CurrentHealth < 1 &&mageInstance.Resurrection)
                 {
-                    DeathScreen(i);
-                    break;
+                    var mageContinues = ActionChoice.MageResurrection(mageInstance);
+
+                    if (!mageContinues)
+                    {
+                        returnBool = DeathScreen(i);
+                        
+                        break;
+                    }
+                    else
+                    {
+                        MonsterDefeated(instanceHero, i);
+                        monstersDefeated++;
+                    }
                 }
+
                 else if (DataStore.AllMonsters[i].CurrentHealth < 1)
                 {
-                    numberOfEnemies += MonsterDefeated(warrior, i);
+                    MonsterDefeated(instanceHero, i);
+                    monstersDefeated++;
+                }
+
+                else
+                {
+                    returnBool = DeathScreen(i);
+                    break;
                 }
 
                 Console.WriteLine("\n Press any key to continue");
@@ -137,74 +115,27 @@ namespace DungeonCrawler.Domain.Services
 
             }
 
-            return false;
-        }
-
-        public static bool BattleSimulatorMage(Mage mage)
-        {
-            var localHealth = mage.Health;
-            var localDamage = mage.Damage;
-
-            var mageSave = false;
-
-            var numberOfEnemies = 10;
-
-            var r = new Random();
-
-            if (localHealth < 1)
+            if(monstersDefeated == DataStore.AllMonsters.Count)
             {
-                
-
-                if (mage.Resurrection)
-                {
-                    Console.WriteLine(" The gods smile upon you and decide to let you ressurect once to continue fighting.\n" +
-                        " Will you take this offer?\n" +
-                        " 1\t Yes!\n" +
-                        " 2\t No, I'm done with this life.");
-
-                    var mageRessurectChoice = IntegerInput.IntInputAndCheck(1, 2);
-
-                    if (mageRessurectChoice == 1)
-                    {
-                        mageSave = true;
-                    }
-
-                }
-
-                Console.Clear();
-
+                WinScreen();
             }
 
-            else
-            {
-                ColorPrints.ColorCyan("\n\n\t THE HERO HAS WON.\n\n");
-
-            }
-            return false;
+            return returnBool;
         }
-
-
-
-        public static bool BattleSimulatorRanger(Ranger ranger)
-        {
-
-
-            return false;
-        }
-
-
 
         public static bool DeathScreen(int i)
         {
+            Console.Clear();
+
             ColorPrints.ColorRed("\n\n\tYOU DIED.\n\n");
 
             Console.WriteLine("\n Your hero's HP dropped to 0.\n" +
-                $" Your run ended with {i} monster(s) slain.\n" +
+                $" Your run ended with {i} monster(s) slain.\n\n" +
                 $" Try again?\n" +
                 $" 1\t Try again!\n" +
                 $" 2\t I'm done for today\n");
 
-            var gameChoice = IntegerInput.IntInputAndCheck(1, 2);
+            var gameChoice = Input.IntInputAndCheck(1, 2);
 
             switch (gameChoice)
             {
@@ -218,41 +149,36 @@ namespace DungeonCrawler.Domain.Services
         }
 
 
-        public static bool WinScreen(int i)
+
+        public static void WinScreen()
         {
             ColorPrints.ColorGreen("\n\n\tTHE HERO HAS WON!\n\n");
 
             Console.WriteLine("Congratulations!\n\n" +
-                "Against all odds, you came out on top.\n" +
-                "Go treat yourself :)\n\n" +
-                "Thanks for playing!");
+                            "Against all odds, you came out on top.\n" +
+                            "Go treat yourself :)\n\n" +
+                            "Thanks for playing!");
 
             Console.WriteLine(" Press any key to exit the game");
             Console.ReadKey();
 
             Console.Clear();
-
-
-            return true;
         }
 
 
 
-        public static int MonsterDefeated(Hero hero, int monsterIndex)
+        public static void MonsterDefeated(Hero hero, int monsterIndex)
         {
-            int additionalMonsters = 0;
 
             Console.WriteLine("\n You've defeated the monster!\n");
 
-            if(DataStore.AllMonsters[monsterIndex] is Witch witch)
+            if (DataStore.AllMonsters[monsterIndex] is Witch witch)
             {
                 Console.WriteLine(" The Witch chanted a summoning spell just as she took her final breath.\n" +
-                    " Two additional, even stronger monsters now stand in your way!\n");
+                                    " Two additional, even stronger monsters now stand in your way!\n");
 
                 RandomEnemy.CreateRandomEnemy(10);
                 RandomEnemy.CreateRandomEnemy(20);
-
-                additionalMonsters += 2;
             }
 
             if (hero.CurrentHealth + hero.Health / 4 > hero.Health)
@@ -265,19 +191,25 @@ namespace DungeonCrawler.Domain.Services
                 hero.CurrentHealth += hero.Health / 4;
             }
 
-            Console.WriteLine(" Your health has been restored by 25%\n\n" +
-                $" Current Health:\t {hero.CurrentHealth}\n" +
-                $" Max Health:\t\t {hero.Health}");
+            Console.WriteLine(" Your Health has been restored by 25%\n" +
+                            $" Health\t\t\t {hero.CurrentHealth}/{hero.Health}");
 
-            if(hero.CurrentHealth != hero.Health)
+            if(hero is Mage mage)
+            {
+                mage.CurrentMana = mage.Mana;
+                Console.WriteLine("\n Your Mana has been fully restored\n" +
+                                 $" Mana\t\t\t {mage.CurrentMana}/{mage.Mana}");
+            }
+
+            if (hero.CurrentHealth != hero.Health)
             {
                 Console.WriteLine("\n Would you like to forfeit this battle's experience to regain all of your HP?\n" +
-               " 1\t Yes, heal me!\n" +
-               " 2\t No, I can go on without resorting to such measures.\n");
+                                " 1\t Yes, heal me!\n" +
+                                " 2\t No, I can go on without resorting to such measures.\n");
 
-                var healChoice = IntegerInput.IntInputAndCheck(1, 2);
+                var healChoice = Input.IntInputAndCheck(1, 2);
 
-                if(healChoice == 1)
+                if (healChoice == 1)
                 {
                     hero.CurrentHealth = hero.Health;
                     DataStore.AllMonsters[monsterIndex].Experience = 0;
@@ -288,8 +220,6 @@ namespace DungeonCrawler.Domain.Services
             hero.Experience += DataStore.AllMonsters[monsterIndex].Experience;
 
             LevelUpHelper.LevelUp(hero);
-
-            return additionalMonsters;
 
         }
 
