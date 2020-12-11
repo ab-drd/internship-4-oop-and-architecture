@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DungeonCrawler.Domain.Helpers
 {
-    public static class IntegerInput
+    public static class Input
     {
         public static int IntInputAndCheck(int range1, int range2)
         {

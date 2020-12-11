@@ -6,7 +6,21 @@ namespace DungeonCrawler.Data.Models.Heroes
 {
     public class Ranger : Hero
     {
-        public Ranger() { }
+        public Ranger()
+        {
+
+        }
+
+        public Ranger(string heroName) : base(heroName)
+        {
+            Health = 75;
+            CurrentHealth = 75;
+            Damage = 25;
+
+            CriticalChance = 5;
+            StunChance = 3;
+
+        }
 
         public int CriticalChance { get; set; }
 

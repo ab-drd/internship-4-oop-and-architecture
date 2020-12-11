@@ -10,7 +10,7 @@ namespace DungeonCrawler.Data.Models.Monsters
     {
         public Monster()
         {
-            
+            DataStore.AllMonsters.Add(this);
         }
 
         public int Health { get; set; }

@@ -12,48 +12,78 @@ namespace DungeonCrawler.Presentation
     {
         static void Main(string[] args)
         {
-            var stopCondition = false;
+            var isPersonPlaying = true;
 
-            while(!stopCondition)
+            while(isPersonPlaying)
             {
                 Console.Clear();
 
-                ColorPrints.ColorRed("\n >>>>>>>> DUNGEON CRAWLER <<<<<<<<\n\n\n");
+                ColorPrints.ColorRed("\n >>>>>>>> DUNGEON CRAWLER <<<<<<<<\n\n");
 
                 ColorPrints.ColorCyan(" MAIN MENU\n");
 
                 Console.WriteLine(" 1\t PLAY\n" +
                     " 2\t EXIT\n");
 
-                var playOrExitChoice = IntegerInput.IntInputAndCheck(1, 2);
+                var playOrExitChoice = Input.IntInputAndCheck(1, 2);
 
                 switch(playOrExitChoice)
                 {
                     case 1:
                         //var instanceHero = CharacterCreation.CreateCharacter();
 
-                        //testHero, for test purposes
-                        var newHero = new Warrior
+                        // test Heroes, for test purposes
+
+                        /*var newHero = new Warrior
                         {
-                            HeroName = "TestHero v1",
+                            HeroName = "TestHero Warrior v1",
                             HeroClass = HeroClass.Warrior,
+
                             Health = 100,
                             CurrentHealth = 100,
-                            Damage = 25,
+                            
                             Experience = 0,
-                            Level = 1
+                            Level = 1,
+
+                            Damage = 20
+
+                        };*/
+
+                        var newHero = new Mage
+                        {
+                            HeroName = "TestHero Mage v1",
+                            HeroClass = HeroClass.Warrior,
+
+                            Health = 50,
+                            CurrentHealth = 50,
+                            
+                            Experience = 0,
+                            Level = 1,
+
+                            Damage = 50,
+                            Mana = 100,
+                            CurrentMana = 100,
+
+                            ManaAttackCost = 25,
+                            ManaHealCost = 50,
+                            ManaHealAmount = 25,
+
+                            Resurrection = true
 
                         };
 
                         var instanceHero = newHero;
+                        
 
                         if (instanceHero == null)
                         {
-                            stopCondition = true;
+                            isPersonPlaying = false;
                         }
 
                         else
                         {
+                            DataStore.AllMonsters.Clear();
+
                             for(var i = 0; i < 10; i++)
                             {
                                 RandomEnemy.CreateRandomEnemy(i);
@@ -61,13 +91,13 @@ namespace DungeonCrawler.Presentation
 
                             Console.Clear();
 
-                            stopCondition = BattleSimulator.BattleSimulation(instanceHero);
+                            isPersonPlaying = BattleSimulator.GeneralBattleSimulation(instanceHero);
                         }
 
                         break;
 
                     case 2:
-                        stopCondition = true;
+                        isPersonPlaying = false;
                         break;
 
                 }

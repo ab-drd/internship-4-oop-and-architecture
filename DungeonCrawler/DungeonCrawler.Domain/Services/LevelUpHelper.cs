@@ -19,7 +19,7 @@ namespace DungeonCrawler.Domain.Services
                 {
                     levelledUp = true;
 
-                    Console.WriteLine($"\n\t >->->-*.**-*. You leveled  up! {hero.Level} -> {hero.Level + 1} .*-*.**-<-<-<\n");
+                    Console.WriteLine($"\n\t >->->-*.**-*. You levelled up! {hero.Level} -> {hero.Level + 1} .*-*.**-<-<-<\n");
 
                     hero.Experience -= DataStore.ExperienceLevels[hero.Level];
 
@@ -30,6 +30,19 @@ namespace DungeonCrawler.Domain.Services
                     if (hero is Mage mage)
                     {
                         mage.Mana += hero.Level * 5;
+                        mage.CurrentMana += hero.Level * 5;
+
+                        if(mage.ManaAttackCost > 0)
+                        {
+                            mage.ManaAttackCost -= 5;
+                        }
+
+                        if(mage.ManaHealCost > 0)
+                        {
+                            mage.ManaHealCost -= 5;
+                        }
+                        
+                        mage.ManaHealAmount += 5;
                     }
 
                     if(hero is Ranger ranger)
@@ -50,8 +63,13 @@ namespace DungeonCrawler.Domain.Services
 
             if(levelledUp)
             {
-                Console.WriteLine($"Your new stats are:\n"
+                Console.WriteLine($" Your new stats are:\n\n"
                         + hero);
+            }
+
+            else
+            {
+                Console.WriteLine($"\n Experience\t\t {hero.Experience}/{DataStore.ExperienceLevels[hero.Level]}");
             }
             
         }

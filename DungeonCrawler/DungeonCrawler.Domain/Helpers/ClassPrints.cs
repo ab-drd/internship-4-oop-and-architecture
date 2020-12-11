@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DungeonCrawler.Domain.Helpers
 {
-    public static class ClassPrints
+    public static class PrintHelpers
     {
         public static void PrintClass(int yourClass)
         {

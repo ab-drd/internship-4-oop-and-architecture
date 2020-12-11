@@ -10,56 +10,54 @@ namespace DungeonCrawler.Domain.Services
 {
     public class RandomEnemy
     {
-        public static Monster CreateRandomEnemy(int additionalStats)
+        public static void CreateRandomEnemy(int additionalStats)
         {
-            var enemyList = new List<Monster>
+
+            var randomNumber = StaticRandom.GetRandom(1, 10);
+
+            if(randomNumber < 6)
             {
-                new Goblin(),
-                new Brute(),
-                new Witch()
-            };
+                var randomGoblin = new Goblin
+                {
+                    Health = StaticRandom.GetRandom(30, 40 + additionalStats),
+                    Damage = StaticRandom.GetRandom(5, 15),
+                    Experience = StaticRandom.GetRandom(15, 20 + additionalStats*2)
 
-            var randomEnemyValue = StaticRandom.GetRandom(1, 10);
+                };
 
-            var chosenEnemy = -1;
-
-            if(randomEnemyValue < 6)
-            {
-                chosenEnemy = 0;
-
-                enemyList[0].Health = StaticRandom.GetRandom(30, 40 + additionalStats);
-                enemyList[0].CurrentHealth = enemyList[0].Health;
-                enemyList[0].Damage = StaticRandom.GetRandom(5, 15);
-                enemyList[0].Experience = StaticRandom.GetRandom(10, 15);
+                randomGoblin.CurrentHealth = randomGoblin.Health;
             }
 
-            else if(randomEnemyValue < 8)
+            else if(randomNumber < 9)
             {
-                chosenEnemy = 1;
+                var randomBrute = new Brute
+                {
+                    Health = StaticRandom.GetRandom(40, 60),
+                    Damage = StaticRandom.GetRandom(25, 35 + additionalStats),
+                    Experience = StaticRandom.GetRandom(30, 40 + additionalStats * 2)
 
-                enemyList[1].Health = StaticRandom.GetRandom(40, 60);
-                enemyList[1].CurrentHealth = enemyList[1].Health;
-                enemyList[1].Damage = StaticRandom.GetRandom(25, 35 + additionalStats);
-                enemyList[1].Experience = StaticRandom.GetRandom(30, 40);
+                };
+
+                randomBrute.CurrentHealth = randomBrute.Health;
             }
 
             else
             {
-                chosenEnemy = 2;
+                var randomWitch = new Witch
+                {
+                    Health = StaticRandom.GetRandom(50, 75 + additionalStats),
+                    Damage = StaticRandom.GetRandom(40, 60 + additionalStats),
+                    Experience = StaticRandom.GetRandom(40, 65 + additionalStats * 2)
 
-                enemyList[2].Health = StaticRandom.GetRandom(50, 75 + additionalStats);
-                enemyList[2].CurrentHealth = enemyList[2].Health;
-                enemyList[2].Damage = StaticRandom.GetRandom(40, 60 + additionalStats);
-                enemyList[2].Experience = StaticRandom.GetRandom(40, 65);
+                };
+
+                randomWitch.CurrentHealth = randomWitch.Health;
+
             }
-
-            DataStore.AllMonsters.Add(enemyList[chosenEnemy]);
-
-            return enemyList[chosenEnemy];
         }
 
 
-        public static int EnemyAction(Hero hero, Monster monster)
+        public static int MonsterAction(Hero hero, Monster monster)
         {
             var r = new Random();
 
@@ -67,7 +65,7 @@ namespace DungeonCrawler.Domain.Services
 
             if (monster is Goblin goblin)
             {
-                damageDealt = StaticRandom.GetRandom(goblin.Damage-5, goblin.Damage+5);
+                damageDealt = goblin.Damage + StaticRandom.GetRandom(-5, 5);
                 Console.WriteLine($" The Goblin stabbed you with his dagger, lowering your HP by {damageDealt}\n");
             }
 
@@ -77,7 +75,7 @@ namespace DungeonCrawler.Domain.Services
 
                 if (attackType < 76)
                 {
-                    damageDealt = StaticRandom.GetRandom(brute.Damage - 2, brute.Damage + 3);
+                    damageDealt = brute.Damage + StaticRandom.GetRandom(-2, 2);
                     Console.WriteLine($" The Brute scarped you with his axe, lowering your HP by {damageDealt}!\n");
                 }
 
@@ -108,6 +106,7 @@ namespace DungeonCrawler.Domain.Services
                         hero.CurrentHealth = hero.Health;
 
                         witch.Health = StaticRandom.GetRandom(1, 100);
+                        witch.CurrentHealth = witch.Health;
 
                         var gotWitch = false;
 
@@ -120,7 +119,8 @@ namespace DungeonCrawler.Domain.Services
 
                             else if(gotWitch)
                             {
-                                someMonster.Health = r.Next(1, someMonster.Health + 10);
+                                someMonster.Health = StaticRandom.GetRandom(5, 100);
+                                someMonster.CurrentHealth = someMonster.Health;
                             }
                         }
                     }

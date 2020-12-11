@@ -1,4 +1,5 @@
-﻿using DungeonCrawler.Data.Models.Monsters;
+﻿using DungeonCrawler.Data.Models.Heroes;
+using DungeonCrawler.Data.Models.Monsters;
 using System;
 using System.Collections.Generic;
 using System.Text;
