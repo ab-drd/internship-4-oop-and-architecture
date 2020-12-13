@@ -17,6 +17,8 @@ namespace DungeonCrawler.Domain.Helpers
 
         }
 
+
+
         public static void ColorRed(string printThis)
         {
 
@@ -27,6 +29,8 @@ namespace DungeonCrawler.Domain.Helpers
             Console.ResetColor();
 
         }
+
+
 
         public static void ColorYellow(string printThis)
         {
@@ -39,10 +43,25 @@ namespace DungeonCrawler.Domain.Helpers
 
         }
 
+
+
         public static void ColorGreen(string printThis)
         {
 
             Console.ForegroundColor = ConsoleColor.Green;
+
+            Console.WriteLine(printThis);
+
+            Console.ResetColor();
+
+        }
+
+
+
+        public static void ColorMagenta(string printThis)
+        {
+
+            Console.ForegroundColor = ConsoleColor.Magenta;
 
             Console.WriteLine(printThis);
 

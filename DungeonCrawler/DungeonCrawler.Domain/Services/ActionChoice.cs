@@ -57,12 +57,15 @@ namespace DungeonCrawler.Domain.Services
             {
                 return 1;
             }
+
             else if (heroChoice == RockPaperScissors.Paper && monsterChoice == RockPaperScissors.Rock
                 || heroChoice == RockPaperScissors.Scissors && monsterChoice == RockPaperScissors.Paper
                 || heroChoice == RockPaperScissors.Rock && monsterChoice == RockPaperScissors.Scissors)
+
             {
                 return 2;
             }
+
             else
             {
                 return 3;
@@ -71,9 +74,9 @@ namespace DungeonCrawler.Domain.Services
 
 
 
-        public static int WarriorRavage(Warrior warrior)
+        public static int WarriorAttack(Warrior warrior)
         {
-            Console.WriteLine("\n You're a warrior, a force of fury and blood!");
+            Console.WriteLine(" You're a warrior, a force of fury and blood!");
             
             Console.WriteLine(" Would you like to sacrifice 15% of your max HP to double your damage this round?\n" +
                     " 1\t Yes\n" +
@@ -115,7 +118,7 @@ namespace DungeonCrawler.Domain.Services
 
         public static bool MageResurrection(Mage mage)
         {
-            Console.WriteLine(" The gods smile upon you and decide to let you resurrect once and continue fighting.\n" +
+            Console.WriteLine("\n The gods smile upon you and decide to let you resurrect once and continue fighting.\n" +
                     " Will you take this offer?\n" +
                     " 1\t Yes!\n" +
                     " 2\t No, I'm done with this life.\n");
@@ -128,7 +131,7 @@ namespace DungeonCrawler.Domain.Services
                     mage.Resurrection = false;
                     Console.WriteLine("\n Your lifeless body springs back into life!\n" +
                                       " The energy surging around you pushes away the " +
-                                      "monster, and you run past it! Lucky!\n");
+                                      "monster, and you manage to run past it!\n");
 
                     mage.CurrentHealth = mage.Health;
                     
@@ -148,7 +151,7 @@ namespace DungeonCrawler.Domain.Services
             if(mage.CurrentMana < mage.ManaAttackCost)
             {
                 Console.WriteLine($" You don't not have enough Mana to perform an attack!\n" +
-                    $" This round will be used to replenish your mana.\n" +
+                    $" This round will be used to replenish your mana.\n\n" +
                     $" Your mana is now full!\n");
 
                 mage.CurrentMana = mage.Mana;
@@ -157,9 +160,6 @@ namespace DungeonCrawler.Domain.Services
             else
             {
                 var doNormalAttack = true;
-
-                Console.WriteLine($"\n Mana Attack Cost\t{mage.ManaAttackCost}\n" +
-                                  $" Mana Heal Cost\t\t{mage.ManaHealCost}");
 
                 if(mage.CurrentHealth < mage.Health && mage.CurrentMana >= mage.ManaHealCost)
                 {
@@ -198,13 +198,34 @@ namespace DungeonCrawler.Domain.Services
 
                 if(doNormalAttack)
                 {
-                    Console.WriteLine("\n You concentrate magic into the palm of " +
+                    Console.WriteLine(" You concentrate magic into the palm of" +
                                      $" your hand and launch it into your enemy!\n");
 
                     damageDealt = mage.Damage;
                     mage.CurrentMana -= mage.ManaAttackCost;
 
                 }
+            }
+            
+            return damageDealt;
+        }
+
+
+
+        public static int RangerAttack(Ranger ranger)
+        {
+            var damageDealt = ranger.Damage;
+
+            if (StaticRandom.GetRandom(1, 100) < ranger.CriticalChance + 1)
+            {
+                damageDealt *= 2;
+                Console.WriteLine(" Critical hit! Damage doubled!\n");
+            }
+
+            if (StaticRandom.GetRandom(1, 100) < ranger.StunChance + 1)
+            {
+                ranger.StunSuccess = true;
+                Console.WriteLine(" Your arrow stunned the monster! It won't be able to move next turn!\n");
             }
             
             return damageDealt;

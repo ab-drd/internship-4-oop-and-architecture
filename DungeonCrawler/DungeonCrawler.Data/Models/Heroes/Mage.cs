@@ -43,6 +43,8 @@ namespace DungeonCrawler.Data.Models.Heroes
             {
                 return $"{base.ToString()}" +
                 $"\tMana\t\t\t {CurrentMana}/{Mana}\n" +
+                $"\tMana Attack Cost\t {ManaAttackCost}\n" +
+                $"\tMana Heal \t\t {ManaHealCost} Mana to heal {ManaHealAmount} HP\n\n" +
                 $"\tAbility\t\t\t Resurrection (cheat death once)\n" +
                 $"\t\t\t\t UNUSED";
             }
@@ -50,7 +52,9 @@ namespace DungeonCrawler.Data.Models.Heroes
             else
             {
                 return $"{base.ToString()}" +
-                $"\tMana\t\t\t {CurrentMana}/{Mana}\n\n" +
+                $"\tMana\t\t\t {CurrentMana}/{Mana}\n" +
+                $"\tMana Attack Cost\t {ManaAttackCost}\n" +
+                $"\tMana Heal \t\t {ManaHealCost} Mana to heal {ManaHealAmount} HP\n\n" +
                 $"\tAbility\t\t\t Resurrection (cheat death once)\n" +
                 $"\t\t\t\t USED";
             }

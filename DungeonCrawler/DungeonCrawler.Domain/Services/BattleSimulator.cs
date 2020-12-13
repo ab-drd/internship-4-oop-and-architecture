@@ -23,12 +23,13 @@ namespace DungeonCrawler.Domain.Services
             for (var i = 0; i < DataStore.AllMonsters.Count; i++)
             {
                 var roundNumber = 1;
+                var isStunned = false;
 
                 while (instanceHero.CurrentHealth > 0 && DataStore.AllMonsters[i].CurrentHealth > 0)
                 {
                     ColorPrints.ColorYellow($"\n   >>> ENEMY {i + 1} / {DataStore.AllMonsters.Count} || ROUND {roundNumber++} <<<\n");
 
-                    StatPrint(instanceHero, i);
+                    PrintHelpers.StatPrint(instanceHero, i);
 
                     var heroChoice = ActionChoice.ActionChoices(true);
 
@@ -38,16 +39,17 @@ namespace DungeonCrawler.Domain.Services
 
                     if (ActionChoice.RoundOutcome(heroChoice, monsterChoice) == 1)
                     {
-                        Console.WriteLine($" {instanceHero.HeroName} and the monster dodged eachother's attacks!\n");
+                        Console.WriteLine($" {instanceHero.HeroName} and the {DataStore.AllMonsters[i].MonsterType} " +
+                                           "dodged eachother's attacks!\n");
                     }
 
                     else if (ActionChoice.RoundOutcome(heroChoice, monsterChoice) == 2)
                     {
-                        Console.WriteLine(" The hero prevailed!");
+                        Console.WriteLine(" The hero prevailed!\n");
 
                         if (instanceHero is Warrior warrior)
                         {
-                            localDamage *= ActionChoice.WarriorRavage(warrior);
+                            localDamage *= ActionChoice.WarriorAttack(warrior);
                         }
 
                         if (instanceHero is Mage mage)
@@ -57,20 +59,38 @@ namespace DungeonCrawler.Domain.Services
 
                         if (instanceHero is Ranger ranger)
                         {
-
+                            localDamage = ActionChoice.RangerAttack(ranger);
+                            if(ranger.StunSuccess)
+                            {
+                                isStunned = true;
+                            }
                         }
                         
                         DataStore.AllMonsters[i].CurrentHealth -= localDamage;
 
-                        Console.WriteLine($" The Monster's HP has been reduced by {localDamage}!\n");
+                        Console.WriteLine($" The {DataStore.AllMonsters[i].MonsterType}'s HP " +
+                                          $"has been reduced by {localDamage}!\n");
 
                         localDamage = instanceHero.Damage;
                     }
 
                     else
                     {
-                        var healthDrop = RandomEnemy.MonsterAction(instanceHero, DataStore.AllMonsters[i]);
-                        instanceHero.CurrentHealth = instanceHero.CurrentHealth - healthDrop;
+                        if(!isStunned)
+                        {
+                            var healthDrop = RandomEnemy.MonsterAction(instanceHero, DataStore.AllMonsters[i]);
+                            instanceHero.CurrentHealth -= healthDrop;
+                        }
+
+                        else
+                        {
+                            Console.WriteLine($" The {DataStore.AllMonsters[i].MonsterType} could not move!\n");
+
+                            if (instanceHero is Ranger rangerInstance)
+                            {
+                                rangerInstance.StunSuccess = false;
+                            }
+                        }
                     }
 
                     Console.WriteLine(" Press any key to continue");
@@ -79,32 +99,31 @@ namespace DungeonCrawler.Domain.Services
                     Console.Clear();
                 }
 
-                if ((instanceHero is Mage mageInstance) && mageInstance.CurrentHealth < 1 &&mageInstance.Resurrection)
+                if ((instanceHero is Mage mageInstance) && mageInstance.CurrentHealth < 1 && mageInstance.Resurrection)
                 {
                     var mageContinues = ActionChoice.MageResurrection(mageInstance);
 
                     if (!mageContinues)
                     {
-                        returnBool = DeathScreen(i);
-                        
+                        returnBool = PrintHelpers.DeathScreen(i);
                         break;
                     }
+
                     else
                     {
-                        MonsterDefeated(instanceHero, i);
                         monstersDefeated++;
                     }
                 }
 
                 else if (DataStore.AllMonsters[i].CurrentHealth < 1)
                 {
-                    MonsterDefeated(instanceHero, i);
+                    PostBattle(instanceHero, i);
                     monstersDefeated++;
                 }
 
                 else
                 {
-                    returnBool = DeathScreen(i);
+                    returnBool = PrintHelpers.DeathScreen(i);
                     break;
                 }
 
@@ -117,68 +136,22 @@ namespace DungeonCrawler.Domain.Services
 
             if(monstersDefeated == DataStore.AllMonsters.Count)
             {
-                WinScreen();
+                PrintHelpers.WinScreen();
             }
 
             return returnBool;
         }
+        
 
-        public static bool DeathScreen(int i)
+
+        public static void PostBattle(Hero hero, int monsterIndex)
         {
-            Console.Clear();
-
-            ColorPrints.ColorRed("\n\n\tYOU DIED.\n\n");
-
-            Console.WriteLine("\n Your hero's HP dropped to 0.\n" +
-                $" Your run ended with {i} monster(s) slain.\n\n" +
-                $" Try again?\n" +
-                $" 1\t Try again!\n" +
-                $" 2\t I'm done for today\n");
-
-            var gameChoice = Input.IntInputAndCheck(1, 2);
-
-            switch (gameChoice)
-            {
-                case 1:
-                    return true;
-                case 2:
-                    return false;
-            }
-
-            return false;
-        }
-
-
-
-        public static void WinScreen()
-        {
-            ColorPrints.ColorGreen("\n\n\tTHE HERO HAS WON!\n\n");
-
-            Console.WriteLine("Congratulations!\n\n" +
-                            "Against all odds, you came out on top.\n" +
-                            "Go treat yourself :)\n\n" +
-                            "Thanks for playing!");
-
-            Console.WriteLine(" Press any key to exit the game");
-            Console.ReadKey();
-
-            Console.Clear();
-        }
-
-
-
-        public static void MonsterDefeated(Hero hero, int monsterIndex)
-        {
-
-            Console.WriteLine("\n You've defeated the monster!\n");
+            ColorPrints.ColorMagenta($"\n   >>> THE MONSTER HAS BEEN DEFEATED <<<\n");
+            Console.WriteLine($" You've defeated the {DataStore.AllMonsters[monsterIndex].MonsterType}!\n");
 
             if (DataStore.AllMonsters[monsterIndex] is Witch witch)
             {
-                Console.WriteLine(" The Witch chanted a summoning spell just as she took her final breath.\n" +
-                                    " Two additional, even stronger monsters now stand in your way!\n");
-
-                RandomEnemy.CreateRandomEnemy(10);
-                RandomEnemy.CreateRandomEnemy(20);
+                RandomEnemy.WitchEnemySummon();
             }
 
             if (hero.CurrentHealth + hero.Health / 4 > hero.Health)
@@ -203,16 +176,16 @@ namespace DungeonCrawler.Domain.Services
 
             if (hero.CurrentHealth != hero.Health)
             {
-                Console.WriteLine("\n Would you like to forfeit this battle's experience to regain all of your HP?\n" +
+                Console.WriteLine("\n Would you like to forfeit half of this battle's experience to regain all of your HP?\n" +
                                 " 1\t Yes, heal me!\n" +
-                                " 2\t No, I can go on without resorting to such measures.\n");
+                                " 2\t No, I can go on without it!\n");
 
                 var healChoice = Input.IntInputAndCheck(1, 2);
 
                 if (healChoice == 1)
                 {
                     hero.CurrentHealth = hero.Health;
-                    DataStore.AllMonsters[monsterIndex].Experience = 0;
+                    DataStore.AllMonsters[monsterIndex].Experience = DataStore.AllMonsters[monsterIndex].Experience / 2;
                     Console.WriteLine("\n You're now at full HP!\n");
                 }
             }
@@ -225,13 +198,6 @@ namespace DungeonCrawler.Domain.Services
 
 
 
-        public static void StatPrint(Hero hero, int monsterIndex)
-        {
-            ColorPrints.ColorGreen(" > THE HERO\n");
-            Console.WriteLine(hero);
-
-            ColorPrints.ColorRed(" > THE MONSTER\n");
-            Console.WriteLine(DataStore.AllMonsters[monsterIndex]);
-        }
+        
     }
 }
