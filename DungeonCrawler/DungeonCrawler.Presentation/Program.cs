@@ -27,16 +27,16 @@ namespace DungeonCrawler.Presentation
 
                 var playOrExitChoice = Input.IntInputAndCheck(1, 2);
 
-                switch(playOrExitChoice)
+                switch (playOrExitChoice)
                 {
                     case 1:
-                        //var instanceHero = CharacterCreation.CreateCharacter();
+                        var instanceHero = CharacterCreation.CreateCharacter();
 
                         // test Heroes, for test purposes
 
                         /*var newHero = new Warrior
                         {
-                            HeroName = "TestHero Warrior v1",
+                            HeroName = "TestHero Warrior v2",
                             HeroClass = HeroClass.Warrior,
 
                             Health = 100,
@@ -45,11 +45,11 @@ namespace DungeonCrawler.Presentation
                             Experience = 0,
                             Level = 1,
 
-                            Damage = 20
+                            Damage = 25
 
                         };*/
 
-                        var newHero = new Mage
+                        /*var newHero = new Mage
                         {
                             HeroName = "TestHero Mage v1",
                             HeroClass = HeroClass.Warrior,
@@ -70,10 +70,27 @@ namespace DungeonCrawler.Presentation
 
                             Resurrection = true
 
-                        };
+                        };*/
 
-                        var instanceHero = newHero;
-                        
+                        /*var newHero = new Ranger
+                        {
+                            HeroName = "TestHero Ranger v1",
+                            HeroClass = HeroClass.Warrior,
+
+                            Health = 75,
+                            CurrentHealth = 75,
+
+                            Level = 1,
+                            Experience = 0,
+
+                            Damage = 35,
+
+                            CriticalChance = 33,
+                            StunChance = 15,
+                            StunSuccess = false
+                        };*/
+
+                        //var instanceHero = newHero;
 
                         if (instanceHero == null)
                         {

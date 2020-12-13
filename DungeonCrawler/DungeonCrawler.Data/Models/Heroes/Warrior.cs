@@ -21,7 +21,7 @@ namespace DungeonCrawler.Data.Models.Heroes
         public override string ToString()
         {
             return $"{base.ToString()}" +
-                $"\tAbility\t\t\t Ravage\n\t\t\t\t Sacrifice 15% of max HP for double damage for one round\n";
+                $"\tAbility\t\t\t Ravage\n\t\t\t\t Sacrifice 15% of max HP for double damage for one round";
         }
     }
 }

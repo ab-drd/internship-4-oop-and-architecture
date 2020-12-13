@@ -12,7 +12,6 @@ namespace DungeonCrawler.Domain.Services
     {
         public static void CreateRandomEnemy(int additionalStats)
         {
-
             var randomNumber = StaticRandom.GetRandom(1, 10);
 
             if(randomNumber < 6)
@@ -22,7 +21,6 @@ namespace DungeonCrawler.Domain.Services
                     Health = StaticRandom.GetRandom(30, 40 + additionalStats),
                     Damage = StaticRandom.GetRandom(5, 15),
                     Experience = StaticRandom.GetRandom(15, 20 + additionalStats*2)
-
                 };
 
                 randomGoblin.CurrentHealth = randomGoblin.Health;
@@ -35,7 +33,6 @@ namespace DungeonCrawler.Domain.Services
                     Health = StaticRandom.GetRandom(40, 60),
                     Damage = StaticRandom.GetRandom(25, 35 + additionalStats),
                     Experience = StaticRandom.GetRandom(30, 40 + additionalStats * 2)
-
                 };
 
                 randomBrute.CurrentHealth = randomBrute.Health;
@@ -48,7 +45,6 @@ namespace DungeonCrawler.Domain.Services
                     Health = StaticRandom.GetRandom(50, 75 + additionalStats),
                     Damage = StaticRandom.GetRandom(40, 60 + additionalStats),
                     Experience = StaticRandom.GetRandom(40, 65 + additionalStats * 2)
-
                 };
 
                 randomWitch.CurrentHealth = randomWitch.Health;
@@ -57,10 +53,9 @@ namespace DungeonCrawler.Domain.Services
         }
 
 
+
         public static int MonsterAction(Hero hero, Monster monster)
         {
-            var r = new Random();
-
             var damageDealt = 0;
 
             if (monster is Goblin goblin)
@@ -105,29 +100,29 @@ namespace DungeonCrawler.Domain.Services
                         hero.Health = StaticRandom.GetRandom(5, 150);
                         hero.CurrentHealth = hero.Health;
 
-                        witch.Health = StaticRandom.GetRandom(1, 100);
-                        witch.CurrentHealth = witch.Health;
-
-                        var gotWitch = false;
-
-                        foreach(var someMonster in DataStore.AllMonsters)
+                        for(var i = DataStore.AllMonsters.IndexOf(witch); i < DataStore.AllMonsters.Count; i++)
                         {
-                            if(someMonster == witch)
-                            {
-                                gotWitch = true;
-                            }
-
-                            else if(gotWitch)
-                            {
-                                someMonster.Health = StaticRandom.GetRandom(5, 100);
-                                someMonster.CurrentHealth = someMonster.Health;
-                            }
+                            DataStore.AllMonsters[i].Health = StaticRandom.GetRandom(5, 100);
+                            DataStore.AllMonsters[i].CurrentHealth = DataStore.AllMonsters[i].Health;
                         }
+
+                        
                     }
                 }
             }
 
             return damageDealt;
+        }
+
+
+
+        public static void WitchEnemySummon()
+        {
+            Console.WriteLine(" The Witch chanted a summoning spell just as she took her final breath.\n" +
+                                  " Two strong monsters appeared somewhere in the dungeon!\n");
+
+            CreateRandomEnemy(10);
+            CreateRandomEnemy(20);
         }
     }
 }

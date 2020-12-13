@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using DungeonCrawler.Data.Abstractions;
 using DungeonCrawler.Data.Enums;
 
 namespace DungeonCrawler.Data.Models.Monsters
@@ -11,14 +10,6 @@ namespace DungeonCrawler.Data.Models.Monsters
         public Witch()
         {
             MonsterType = MonsterTypes.Witch;
-        }
-
-        public static void DeathCry(int health)
-        {
-            if (health < 1)
-            {
-                
-            }
         }
     }
 }

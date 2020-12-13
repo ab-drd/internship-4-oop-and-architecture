@@ -1,12 +1,11 @@
-﻿using DungeonCrawler.Data.Abstractions;
-using DungeonCrawler.Data.Enums;
+﻿using DungeonCrawler.Data.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace DungeonCrawler.Data.Models.Monsters
 {
-    public class Monster : IHasHealth
+    public class Monster
     {
         public Monster()
         {
@@ -25,7 +24,7 @@ namespace DungeonCrawler.Data.Models.Monsters
 
         public override string ToString()
         {
-            return $"\tMonster\t\t\t {MonsterType}\n" +
+            return $"\tMonster\t\t\t {MonsterType}\n\n" +
                 $"\tHealth\t\t\t {CurrentHealth}/{Health}\n" +
                 $"\tDamage\t\t\t {Damage}\n";
         }
